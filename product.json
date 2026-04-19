@@ -1,5 +1,7 @@
 {
-  "name": "iPhone 15",
-  "price": "45000",
-  "image": "https://via.placeholder.com/400"
+  "name": "Örnek Ürün",
+  "price": "0 TL",
+  "image": "https://via.placeholder.com/400",
+  "seller": "Örnek Satıcı",
+  "phone": "05550000000"
 }
