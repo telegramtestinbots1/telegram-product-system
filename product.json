@@ -1,7 +1,7 @@
 {
-  "name": "Örnek Ürün",
-  "price": "0 TL",
-  "image": "https://via.placeholder.com/400",
-  "seller": "Örnek Satıcı",
-  "phone": "05550000000"
+  "name": "iPhone 13",
+  "price": "15000",
+  "seller": "Ahmet",
+  "phone": "0555...",
+  "image": "https://site.com/resim.jpg"
 }
