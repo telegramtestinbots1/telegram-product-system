@@ -11,7 +11,7 @@ const ALLOWED_ORIGIN = "https://telegramtestinbots1.github.io";
 const token = "8741427596:AAGokUoGuYMbFW-6IVFvQYWx7I8ktdWu8xw";
 
 const ALLOWED_USERS = [
-  8741427596,
+  6048463375, // SENİN GERÇEK ID
   0,
   0,
   0
