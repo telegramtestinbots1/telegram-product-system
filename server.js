@@ -12,8 +12,10 @@ const token = "8741427596:AAGokUoGuYMbFW-6IVFvQYWx7I8ktdWu8xw";
 
 // Yetkili kullanıcılar
 const ALLOWED_USERS = [
-  8741427596, // sen
-  0000000000  // sonra değiştireceksin
+  8741427596,   // sen
+  00000000000,  // 2. kullanıcı
+  00000000000,  // 3. kullanıcı
+  00000000000   // 4. kullanıcı
 ];
 
 // Telegram'a imza/sözleşme bildirimlerinin gideceği ana ID
@@ -150,10 +152,11 @@ console.log("Bot çalışıyor...");
 
 // Manuel ürün ekleme
 bot.onText(/\/urun (.+)/, (msg, match) => {
+  const userId = msg.from.id;
   const chatId = msg.chat.id;
 
   try {
-    if (!ALLOWED_USERS.includes(chatId)) {
+    if (!ALLOWED_USERS.includes(userId)) {
       bot.sendMessage(chatId, "⛔ Yetkisiz kullanım");
       return;
     }
@@ -186,10 +189,11 @@ bot.onText(/\/urun (.+)/, (msg, match) => {
 
 // Sahibinden linkinden ürün çekme
 bot.onText(/\/ilan (.+)/, async (msg, match) => {
+  const userId = msg.from.id;
   const chatId = msg.chat.id;
 
   try {
-    if (!ALLOWED_USERS.includes(chatId)) {
+    if (!ALLOWED_USERS.includes(userId)) {
       bot.sendMessage(chatId, "⛔ Yetkisiz kullanım");
       return;
     }
