@@ -11,10 +11,10 @@ const ALLOWED_ORIGIN = "https://telegramtestinbots1.github.io";
 const token = "8741427596:AAGokUoGuYMbFW-6IVFvQYWx7I8ktdWu8xw";
 
 const ALLOWED_USERS = [
-  8741427596,   // sen
-  0,            // 2. kullanıcı
-  0,            // 3. kullanıcı
-  0             // 4. kullanıcı
+  8741427596,
+  0,
+  0,
+  0
 ];
 
 const MAIN_ADMIN_ID = 8741427596;
@@ -25,17 +25,11 @@ app.use(cors({
   allowedHeaders: ["Content-Type"]
 }));
 
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", ALLOWED_ORIGIN);
-  res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-  res.header("Access-Control-Allow-Headers", "Content-Type");
-  if (req.method === "OPTIONS") {
-    return res.sendStatus(200);
-  }
-  next();
-});
-
 app.use(express.json());
+
+function isAllowedUser(msg) {
+  return ALLOWED_USERS.includes(Number(msg.from.id));
+}
 
 function readProduct() {
   const data = fs.readFileSync("product.json", "utf8");
@@ -52,51 +46,39 @@ function normalizeImageUrl(url) {
   return url;
 }
 
-function isAllowedUser(msg) {
-  const userId = Number(msg.from.id);
-  return ALLOWED_USERS.includes(userId);
-}
-
 async function fetchSahibindenData(ilanUrl) {
   const response = await axios.get(ilanUrl, {
     headers: {
-      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+      "User-Agent": "Mozilla/5.0",
       "Accept-Language": "tr-TR,tr;q=0.9,en;q=0.8"
     },
     timeout: 15000
   });
 
-  const html = response.data;
-  const $ = cheerio.load(html);
+  const $ = cheerio.load(response.data);
 
   let title =
     $('meta[property="og:title"]').attr("content") ||
-    $('meta[name="title"]').attr("content") ||
     $("title").text().trim() ||
     $("h1").first().text().trim();
 
   let image =
     $('meta[property="og:image"]').attr("content") ||
-    $('meta[name="og:image"]').attr("content") ||
     $('meta[property="twitter:image"]').attr("content") ||
     "";
 
   title = (title || "").trim();
   image = normalizeImageUrl((image || "").trim());
 
-  if (!title) {
-    throw new Error("İlan başlığı alınamadı");
-  }
+  if (!title) throw new Error("İlan başlığı alınamadı");
 
   return { title, image };
 }
 
 app.get("/product", (req, res) => {
   try {
-    const product = readProduct();
-    res.json(product);
+    res.json(readProduct());
   } catch (err) {
-    console.error("Ürün okuma hatası:", err);
     res.status(500).json({ error: "Ürün okunamadı" });
   }
 });
@@ -106,7 +88,6 @@ app.post("/update-product", (req, res) => {
     writeProduct(req.body);
     res.send("Ürün güncellendi");
   } catch (err) {
-    console.error("Ürün güncelleme hatası:", err);
     res.status(500).send("Hata oluştu");
   }
 });
@@ -137,54 +118,37 @@ app.listen(process.env.PORT || 3000, () => {
   console.log("Server çalışıyor");
 });
 
-const bot = new TelegramBot(token, {
-  polling: true
-});
+const bot = new TelegramBot(token, { polling: true });
 
 console.log("Bot çalışıyor...");
 
-// ID öğrenme
 bot.onText(/\/id/, (msg) => {
-  const userId = Number(msg.from.id);
-  const chatId = Number(msg.chat.id);
-
   bot.sendMessage(
     msg.chat.id,
-    `Senin userId: ${userId}\nBu sohbetin chatId: ${chatId}`
+    `userId: ${Number(msg.from.id)}\nchatId: ${Number(msg.chat.id)}`
   );
 });
 
-// Başlangıç
 bot.onText(/\/start/, (msg) => {
-  const userId = Number(msg.from.id);
-  const allowed = ALLOWED_USERS.includes(userId);
-
   bot.sendMessage(
     msg.chat.id,
-    `Merhaba.\nuserId: ${userId}\nYetkili mi: ${allowed ? "evet" : "hayır"}`
+    `Merhaba\nuserId: ${Number(msg.from.id)}\nYetkili: ${isAllowedUser(msg) ? "evet" : "hayır"}`
   );
 });
 
-// Manuel ürün ekleme
 bot.onText(/\/urun (.+)/, (msg, match) => {
-  const userId = Number(msg.from.id);
-  const chatId = Number(msg.chat.id);
-
-  console.log("Kullanan userId:", userId, "chatId:", chatId);
+  const chatId = msg.chat.id;
 
   try {
     if (!isAllowedUser(msg)) {
-      bot.sendMessage(chatId, `⛔️ Yetkisiz kullanım\nuserId: ${userId}`);
+      bot.sendMessage(chatId, `⛔️ Yetkisiz kullanım\nuserId: ${Number(msg.from.id)}`);
       return;
     }
 
     const data = match[1].split("|");
 
     if (data.length < 3) {
-      bot.sendMessage(
-        chatId,
-        "❌ Format hatalı!\n\nKullanım:\n/urun Ürün|Fiyat|ResimURL"
-      );
+      bot.sendMessage(chatId, "❌ Kullanım:\n/urun Ürün|Fiyat|ResimURL");
       return;
     }
 
@@ -195,35 +159,26 @@ bot.onText(/\/urun (.+)/, (msg, match) => {
     };
 
     writeProduct(product);
-
     bot.sendMessage(chatId, "✅ Ürün güncellendi!");
-    console.log("Manuel ürün:", product);
   } catch (err) {
     console.error(err);
     bot.sendMessage(chatId, "❌ Hata oluştu");
   }
 });
 
-// Sahibinden linkinden ürün çekme
 bot.onText(/\/ilan (.+)/, async (msg, match) => {
-  const userId = Number(msg.from.id);
-  const chatId = Number(msg.chat.id);
-
-  console.log("Kullanan userId:", userId, "chatId:", chatId);
+  const chatId = msg.chat.id;
 
   try {
     if (!isAllowedUser(msg)) {
-      bot.sendMessage(chatId, `⛔️ Yetkisiz kullanım\nuserId: ${userId}`);
+      bot.sendMessage(chatId, `⛔️ Yetkisiz kullanım\nuserId: ${Number(msg.from.id)}`);
       return;
     }
 
     const data = match[1].split("|");
 
     if (data.length < 2) {
-      bot.sendMessage(
-        chatId,
-        "❌ Format hatalı!\n\nKullanım:\n/ilan Fiyat|İlanLinki"
-      );
+      bot.sendMessage(chatId, "❌ Kullanım:\n/ilan Fiyat|İlanLinki");
       return;
     }
 
@@ -236,28 +191,18 @@ bot.onText(/\/ilan (.+)/, async (msg, match) => {
 
     const product = {
       name: ilanData.title,
-      price: price,
+      price,
       image: ilanData.image
     };
 
     writeProduct(product);
 
-    let resultMessage =
-      "✅ İlan eklendi!\n\n" +
-      "Başlık: " + product.name + "\n" +
-      "Fiyat: " + product.price;
-
-    if (!product.image) {
-      resultMessage += "\n\n⚠️ Resim alınamadı. Gerekirse /urun komutuyla manuel resim gir.";
-    }
-
-    bot.sendMessage(chatId, resultMessage);
-    console.log("İlandan ürün:", product);
-  } catch (err) {
-    console.error("İlan çekme hatası:", err);
     bot.sendMessage(
       chatId,
-      "❌ İlan bilgileri alınamadı.\n\nGerekirse /urun komutuyla manuel gir."
+      `✅ İlan eklendi!\n\nBaşlık: ${product.name}\nFiyat: ${product.price}`
     );
+  } catch (err) {
+    console.error(err);
+    bot.sendMessage(chatId, "❌ İlan bilgileri alınamadı");
   }
 });
