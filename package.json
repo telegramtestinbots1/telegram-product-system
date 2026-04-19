@@ -1,9 +1,12 @@
 {
   "name": "telegram-product-system",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "bot": "node bot.js",
+    "multi": "node server-multi.js",
+    "bot-multi": "node bot-multi.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
