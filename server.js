@@ -10,15 +10,13 @@ const app = express();
 const ALLOWED_ORIGIN = "https://telegramtestinbots1.github.io";
 const token = "8741427596:AAGokUoGuYMbFW-6IVFvQYWx7I8ktdWu8xw";
 
-// Yetkili kullanıcılar
 const ALLOWED_USERS = [
   8741427596,   // sen
-  00000000000,  // 2. kullanıcı
-  00000000000,  // 3. kullanıcı
-  00000000000   // 4. kullanıcı
+  0,            // 2. kullanıcı
+  0,            // 3. kullanıcı
+  0             // 4. kullanıcı
 ];
 
-// Telegram'a imza/sözleşme bildirimlerinin gideceği ana ID
 const MAIN_ADMIN_ID = 8741427596;
 
 app.use(cors({
@@ -39,25 +37,26 @@ app.use((req, res, next) => {
 
 app.use(express.json());
 
-// JSON oku
 function readProduct() {
   const data = fs.readFileSync("product.json", "utf8");
   return JSON.parse(data);
 }
 
-// JSON yaz
 function writeProduct(product) {
   fs.writeFileSync("product.json", JSON.stringify(product, null, 2));
 }
 
-// Resim URL düzelt
 function normalizeImageUrl(url) {
   if (!url) return "";
   if (url.startsWith("//")) return "https:" + url;
   return url;
 }
 
-// Sahibinden verisi çek
+function isAllowedUser(msg) {
+  const userId = Number(msg.from.id);
+  return ALLOWED_USERS.includes(userId);
+}
+
 async function fetchSahibindenData(ilanUrl) {
   const response = await axios.get(ilanUrl, {
     headers: {
@@ -92,7 +91,6 @@ async function fetchSahibindenData(ilanUrl) {
   return { title, image };
 }
 
-// Ürün oku
 app.get("/product", (req, res) => {
   try {
     const product = readProduct();
@@ -103,7 +101,6 @@ app.get("/product", (req, res) => {
   }
 });
 
-// Ürün güncelle
 app.post("/update-product", (req, res) => {
   try {
     writeProduct(req.body);
@@ -114,7 +111,6 @@ app.post("/update-product", (req, res) => {
   }
 });
 
-// İmza gönder
 app.post("/submit", async (req, res) => {
   try {
     const { signature, product } = req.body;
@@ -133,31 +129,52 @@ app.post("/submit", async (req, res) => {
   }
 });
 
-// Uptime için
 app.get("/ping", (req, res) => {
   res.send("ok");
 });
 
-// Server başlat
 app.listen(process.env.PORT || 3000, () => {
   console.log("Server çalışıyor");
 });
 
-// Telegram bot
 const bot = new TelegramBot(token, {
   polling: true
 });
 
 console.log("Bot çalışıyor...");
 
+// ID öğrenme
+bot.onText(/\/id/, (msg) => {
+  const userId = Number(msg.from.id);
+  const chatId = Number(msg.chat.id);
+
+  bot.sendMessage(
+    msg.chat.id,
+    `Senin userId: ${userId}\nBu sohbetin chatId: ${chatId}`
+  );
+});
+
+// Başlangıç
+bot.onText(/\/start/, (msg) => {
+  const userId = Number(msg.from.id);
+  const allowed = ALLOWED_USERS.includes(userId);
+
+  bot.sendMessage(
+    msg.chat.id,
+    `Merhaba.\nuserId: ${userId}\nYetkili mi: ${allowed ? "evet" : "hayır"}`
+  );
+});
+
 // Manuel ürün ekleme
 bot.onText(/\/urun (.+)/, (msg, match) => {
-  const userId = msg.from.id;
-  const chatId = msg.chat.id;
+  const userId = Number(msg.from.id);
+  const chatId = Number(msg.chat.id);
+
+  console.log("Kullanan userId:", userId, "chatId:", chatId);
 
   try {
-    if (!ALLOWED_USERS.includes(userId)) {
-      bot.sendMessage(chatId, "⛔ Yetkisiz kullanım");
+    if (!isAllowedUser(msg)) {
+      bot.sendMessage(chatId, `⛔️ Yetkisiz kullanım\nuserId: ${userId}`);
       return;
     }
 
@@ -189,12 +206,14 @@ bot.onText(/\/urun (.+)/, (msg, match) => {
 
 // Sahibinden linkinden ürün çekme
 bot.onText(/\/ilan (.+)/, async (msg, match) => {
-  const userId = msg.from.id;
-  const chatId = msg.chat.id;
+  const userId = Number(msg.from.id);
+  const chatId = Number(msg.chat.id);
+
+  console.log("Kullanan userId:", userId, "chatId:", chatId);
 
   try {
-    if (!ALLOWED_USERS.includes(userId)) {
-      bot.sendMessage(chatId, "⛔ Yetkisiz kullanım");
+    if (!isAllowedUser(msg)) {
+      bot.sendMessage(chatId, `⛔️ Yetkisiz kullanım\nuserId: ${userId}`);
       return;
     }
 
