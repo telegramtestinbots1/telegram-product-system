@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Param Güvende Sözleşme</title>
+
+<style>
+body{
+    margin:0;
+    font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    background:#f4f6f8;
+}
+.header{
+    background:#0f172a;
+    padding:18px 12px;
+}
+.header-center{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+}
+.logo{
+    height:28px;
+}
+.sub{
+    color:#cbd5e1;
+    font-size:12px;
+}
+.secure-badge{
+    margin-top:6px;
+    background:#16a34a;
+    color:white;
+    font-size:11px;
+    padding:4px 10px;
+    border-radius:999px;
+}
+.container{
+    padding:16px;
+    max-width:720px;
+    margin:auto;
+}
+.card{
+    background:white;
+    border-radius:12px;
+    padding:14px;
+    margin-bottom:12px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.05);
+}
+.title{
+    font-weight:700;
+    text-align:center;
+    margin-bottom:10px;
+}
+.product-box{
+    border-left:5px solid #16a34a;
+    padding:15px;
+    border-radius:10px;
+    text-align:center;
+}
+.product-img{
+    width:auto;
+    max-width:100%;
+    max-height:160px;
+    display:block;
+    margin:0 auto 10px;
+    border-radius:10px;
+    border:1px solid #e5e7eb;
+    background:#fff;
+}
+.product-row{
+    display:flex;
+    justify-content:center;
+    gap:15px;
+    flex-wrap:wrap;
+}
+.product-item{
+    border:1px solid #e5e7eb;
+    padding:10px;
+    border-radius:8px;
+    min-width:200px;
+}
+.product-label{
+    font-weight:700;
+    font-size:13px;
+}
+.product-value{
+    font-weight:600;
+    font-size:15px;
+    word-break:break-word;
+}
+.contract-text{
+    line-height:1.6;
+    color:#1f2937;
+    font-size:14px;
+}
+canvas{
+    width:100%;
+    height:180px;
+    border:2px dashed #ccc;
+    border-radius:10px;
+    background:#fff;
+    display:block;
+}
+.actions{
+    position:sticky;
+    bottom:0;
+    background:white;
+    padding:10px;
+    box-shadow:0 -2px 10px rgba(0,0,0,0.06);
+}
+button{
+    width:100%;
+    padding:14px;
+    border:none;
+    border-radius:10px;
+    background:#16a34a;
+    color:white;
+    font-weight:700;
+    cursor:pointer;
+}
+.secondary{
+    background:#e5e7eb;
+    color:black;
+    margin-top:10px;
+}
+.popup{
+    position:fixed;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    background:white;
+    padding:20px;
+    border-radius:12px;
+    box-shadow:0 10px 40px rgba(0,0,0,0.2);
+    display:none;
+    text-align:center;
+    z-index:9999;
+    width:min(90vw, 360px);
+}
+.popup button{
+    margin-top:12px;
+}
+label{
+    font-size:14px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+    <div class="header-center">
+        <img src="https://upload.wikimedia.org/wikipedia/tr/archive/5/51/20121213095814%21Sahibinden-2010-200px.jpg" class="logo" alt="Logo">
+        <div class="sub">Param Güvende Hizmet Sözleşmesi</div>
+        <div class="secure-badge">🔒 %100 Güvenli İşlem</div>
+    </div>
+</div>
+
+<div class="container">
+
+    <div class="card">
+        <div class="title">Ürün Bilgisi</div>
+
+        <div class="product-box">
+            <img id="pimg" class="product-img" alt="Ürün Resmi">
+
+            <div class="product-row">
+                <div class="product-item">
+                    <div class="product-label">📦 Ürün Adı</div>
+                    <div id="pname" class="product-value"></div>
+                </div>
+
+                <div class="product-item">
+                    <div class="product-label">💰 Ürün Fiyatı</div>
+                    <div id="pprice" class="product-value"></div>
+                </div>
+            </div>
+
+            <div class="product-row">
+                <div class="product-item">
+                    <div class="product-label">👤 Satıcı</div>
+                    <div id="pseller" class="product-value"></div>
+                </div>
+
+                <div class="product-item">
+                    <div class="product-label">📞 İletişim</div>
+                    <div class="product-value"><span id="pphone"></span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card"><div class="title">Hizmetin Kapsamı</div><div class="contract-text">Platform, alıcı ile satıcı arasında gerçekleşen işlemlerde ödeme aracılık hizmeti sunar. Platform, ürün veya hizmetin tarafı değildir.</div></div>
+    <div class="card"><div class="title">Ödeme ve Blokaj Süreci</div><div class="contract-text">Alıcı tarafından gerçekleştirilen ödeme, işlem tamamlanıncaya kadar güvenli hesapta muhafaza edilir. Bu süre zarfında tutar satıcı tarafından kullanılamaz. Tüm ödemeler, Sahibinden güvencesiyle korunmaktadır.</div></div>
+    <div class="card"><div class="title">Alıcı Onayı ve Otomatik Aktarım</div><div class="contract-text">Alıcı onayı ile ödeme satıcıya aktarılır. Belirlenen süre içinde işlem yapılmazsa ödeme otomatik olarak satıcıya aktarılabilir.</div></div>
+    <div class="card"><div class="title">İtiraz ve İnceleme</div><div class="contract-text">İtiraz durumunda işlem askıya alınır ve platform kayıtları esas alınarak değerlendirme yapılır.</div></div>
+    <div class="card"><div class="title">Satıcı Haklarının Korunması</div><div class="contract-text">Satıcı, ürünü eksiksiz teslim ettiğini belgelediğinde ödeme alma hakkına sahiptir. Kötü niyetli itirazlar reddedilebilir.</div></div>
+    <div class="card"><div class="title">Platform Sorumluluğu ve Sigorta</div><div class="contract-text">S - Param Güvende, nakliye ve ödeme aracılık hizmeti sunmakta olup, sunulan ürün ve/veya hizmetlere ilişkin sorumlulukları üstlenmektedir. Alıcı ve Satıcı’nın, işlemlerini zorunlu sigorta kapsamında gerçekleştirmesi gerekmektedir.</div></div>
+    <div class="card"><div class="title">Nakliye ve Teslimat Koşulları</div><div class="contract-text">Sahibinden.com üzerinden gerçekleştirilen alışverişlerde, gönderimler anlaşmalı kargo firmaları olan Yurtiçi Kargo veya PTT Kargo aracılığıyla sağlanmakta olup, Türkiye genelinde ücretsiz olarak teslim edilmektedir.</div></div>
+    <div class="card"><div class="title">Elektronik Onay</div><div class="contract-text">Bu sözleşme elektronik ortamda onaylanarak yürürlüğe girer ve kayıtlar delil niteliğindedir.</div></div>
+
+    <div class="card">
+        <div class="title">İmzanız</div>
+        <canvas id="pad"></canvas>
+        <button class="secondary" type="button" onclick="clearPad()">Temizle</button>
+    </div>
+
+    <div class="card">
+        <label><input type="checkbox" id="check"> Sözleşmeyi okudum ve kabul ediyorum</label>
+    </div>
+
+</div>
+
+<div class="actions">
+    <button type="button" onclick="send()">Sözleşmeyi Onayla ve İmzala</button>
+</div>
+
+<div class="popup" id="popup">
+    <p>Sözleşmeniz başarıyla kayıt altına alınmıştır.<br>Yetkili temsilcinizi bilgilendiriniz.</p>
+    <button type="button" onclick="closePopup()">Tamam</button>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
+
+<script>
+const canvas = document.getElementById("pad");
+const pad = new SignaturePad(canvas);
+const FALLBACK = "https://via.placeholder.com/400x250?text=Urun+Resmi";
+
+const params = new URLSearchParams(window.location.search);
+const id = params.get("id");
+const token = params.get("token");
+
+function resizeCanvas() {
+    const ratio = Math.max(window.devicePixelRatio || 1, 1);
+    const savedData = pad.isEmpty() ? null : pad.toData();
+
+    canvas.width = canvas.offsetWidth * ratio;
+    canvas.height = canvas.offsetHeight * ratio;
+
+    const ctx = canvas.getContext("2d");
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.scale(ratio, ratio);
+
+    if (savedData) {
+        pad.fromData(savedData);
+    } else {
+        pad.clear();
+    }
+}
+
+window.addEventListener("load", resizeCanvas);
+window.addEventListener("resize", resizeCanvas);
+
+function clearPad(){
+    pad.clear();
+}
+
+function setImage(url){
+    const img = document.getElementById("pimg");
+    let triedFallback = false;
+
+    img.onload = function(){
+        img.style.display = "block";
+    };
+
+    img.onerror = function(){
+        if (!triedFallback) {
+            triedFallback = true;
+            img.src = FALLBACK + "&t=" + Date.now();
+        }
+    };
+
+    if(url && url.trim() !== ""){
+        const separator = url.includes("?") ? "&" : "?";
+        img.src = url + separator + "t=" + Date.now();
+    } else {
+        img.src = FALLBACK + "&t=" + Date.now();
+    }
+}
+
+function loadProduct() {
+    if (!id || !token) {
+        alert("Geçersiz ilan linki.");
+        return;
+    }
+
+    fetch(`/multi/product/${encodeURIComponent(id)}?token=${encodeURIComponent(token)}&t=${Date.now()}`)
+        .then(r => {
+            if (!r.ok) throw new Error("İlan alınamadı");
+            return r.json();
+        })
+        .then(d => {
+            document.getElementById("pname").innerText = d.name || "-";
+
+            let price = (d.price || "-").toString().trim();
+            if (price !== "-" && !price.toLowerCase().includes("tl")) {
+                price += " TL";
+            }
+            document.getElementById("pprice").innerText = price;
+
+            document.getElementById("pseller").innerText = d.seller || "-";
+            document.getElementById("pphone").innerText = d.phone || "-";
+
+            setImage(d.image);
+        })
+        .catch(() => {
+            alert("İlan bilgileri yüklenemedi.");
+            setImage("");
+        });
+}
+
+function send(){
+    if(!document.getElementById("check").checked){
+        alert("Sözleşmeyi kabul etmelisiniz");
+        return;
+    }
+
+    if(pad.isEmpty()){
+        alert("İmza gereklidir");
+        return;
+    }
+
+    fetch("/multi/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            id,
+            token,
+            signature: pad.toDataURL()
+        })
+    })
+    .then(r => r.json())
+    .then(() => {
+        document.getElementById("popup").style.display = "block";
+    })
+    .catch(() => {
+        alert("İmza kaydedilemedi.");
+    });
+}
+
+function closePopup(){
+    document.getElementById("popup").style.display = "none";
+}
+
+loadProduct();
+</script>
+
+</body>
+</html>
